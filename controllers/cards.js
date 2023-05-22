@@ -57,4 +57,4 @@ module.exports.dislikeCard = (req, res) =>
       }
     })
     .then((data) => res.send(data))
-    .catch((err) => res.status(500).send({ message: err.message }));
+    .catch((err) => res.status(400).send({ message: err.message }));

@@ -20,7 +20,7 @@ module.exports.getUsers = (req, res, next) => {
 module.exports.getUserById = (req, res) => {
   User.findById(req.params.userId)
     .then((user) => {if (user) {res.send(user)} else {res.send('нет юзера с таким id')}})  //res.send(user)
-    .catch((err) => res.status(404).send(err.message));
+    .catch((err) => res.status(400).send({message: err.message}));
 };
 
 module.exports.updateUser = (req, res) => {

@@ -19,7 +19,14 @@ module.exports.deleteCard = (req, res) => {
   // eslint-disable-next-line no-underscore-dangle
   Card.findByIdAndRemove(req.params.cardId)
   .then((data) => res.send('Удаление прошло успешно!', data))
-  .catch((err) => res.status(500).send({ message: err }));
+  .catch(err => {
+    if (err.name === 'ValidationError') {
+    next(err)
+    } else {
+    next(err)
+    }
+    })
+    
 }
 
 module.exports.likeCard = (req, res) => Card.findByIdAndUpdate(

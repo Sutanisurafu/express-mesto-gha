@@ -1,11 +1,18 @@
 const User = require("../models/user");
 
-module.exports.createUser = (req, res) => {
+module.exports.createUser = (req, res, next) => {
   const { name, about, avatar } = req.body;
 
   User.create({ name, about, avatar })
     .then((user) => res.send({ data: user }))
-    .catch((err) => res.status(400).send({ message: err }));
+    .catch(err => {
+      if (err.name === 'ValidationError') {
+      next(err)
+      } else {
+      next(err)
+      }
+      })
+      
 };
 
 module.exports.getUsers = (req, res, next) => {

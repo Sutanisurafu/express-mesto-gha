@@ -41,7 +41,6 @@ module.exports.likeCard = (req, res) =>
         res.status(404).send({ message: "Карточки с таким id несуществует" });
       }
     })
-    .then((data) => res.send(data))
     .catch((err) => res.status(400).send({ message: err.message }));
 
 module.exports.dislikeCard = (req, res) =>
@@ -50,5 +49,12 @@ module.exports.dislikeCard = (req, res) =>
     { $pull: { likes: req.user._id } }, // убрать _id из массива
     { new: true }
   )
+    .then((data) => {
+      if (data) {
+        res.send(data);
+      } else {
+        res.status(404).send({ message: "Карточки с таким id несуществует" });
+      }
+    })
     .then((data) => res.send(data))
     .catch((err) => res.status(500).send({ message: err }));

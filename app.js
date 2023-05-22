@@ -6,8 +6,8 @@ const bodyParser = require('body-parser');
 const { PORT = 3000 } = process.env;
 const app = express();
 
-const router = require('./routes/users')
-const router2 = require('./routes/cards')
+const userRouter = require('./routes/users')
+const cardRouter = require('./routes/cards')
 
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
@@ -23,8 +23,8 @@ app.use((req, res, next) => {
   next();
 }); 
 
-app.use(router);
-app.use(router2);
+app.use(userRouter);
+app.use(cardRouter);
 
 mongoose.connect('mongodb://0.0.0.0:27017/mestodb', {
   useNewUrlParser: true,
@@ -40,4 +40,3 @@ app.listen(PORT, () => {
 });
 
 
-// "_id": "646a15689f6c97feb47de31e",

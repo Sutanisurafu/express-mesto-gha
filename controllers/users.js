@@ -6,11 +6,7 @@ module.exports.createUser = (req, res, next) => {
   User.create({ name, about, avatar })
     .then((user) => res.send({ data: user }))
     .catch(err => {
-      if (err.name === 'ValidationError') {
-      next(err)
-      } else {
-      next(err)
-      }
+        res.status(500).send({ message: err.message})
       })
       
 };

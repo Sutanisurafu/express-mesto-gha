@@ -27,8 +27,9 @@ app.use((req, res, next) => {
 app.use(userRouter);
 app.use(cardRouter);
 
-app.use('*', (req, res, next) => {
-  next(res.send('Страница не найдена'));
+app.use('*', (req, res) => {
+  res.status(404)
+  .send({ message: 'Запрашиваемая страница не существует'})
 });
 
 mongoose.connect('mongodb://0.0.0.0:27017/mestodb', {

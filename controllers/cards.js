@@ -18,14 +18,15 @@ module.exports.getCards = (req, res) => {
 module.exports.deleteCard = (req, res) => {
   // eslint-disable-next-line no-underscore-dangle
   Card.findByIdAndRemove(req.params.cardId)
-    .then((data) => res.send({data}))
-    .catch((err) => {
-      if (err) {
+    .then((data) => {
+      if (data) {
         res.send(data);
       } else {
         res.status(404).send({message: 'Карточки с таким id несуществует'})
       }
-    });
+    })
+    .catch((err) => res.status(400).send({ message: err.message }));
+
 };
 
 module.exports.likeCard = (req, res) =>

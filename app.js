@@ -1,5 +1,6 @@
 const express = require('express');
 const mongoose = require('mongoose');
+const router = require('express').Router();
 
 const bodyParser = require('body-parser');
 
@@ -26,6 +27,10 @@ app.use((req, res, next) => {
 app.use(userRouter);
 app.use(cardRouter);
 
+app.use('*', (req, res, next) => {
+  next(res.send('Страница не найдена'));
+});
+
 mongoose.connect('mongodb://0.0.0.0:27017/mestodb', {
   useNewUrlParser: true,
 })
@@ -38,5 +43,4 @@ mongoose.connect('mongodb://0.0.0.0:27017/mestodb', {
 app.listen(PORT, () => {
   console.log('Server is running on 3000 PORT');
 });
-
 

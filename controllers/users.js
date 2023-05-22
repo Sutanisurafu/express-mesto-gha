@@ -5,7 +5,7 @@ module.exports.createUser = (req, res) => {
 
   User.create({ name, about, avatar })
     .then((user) => res.send({ data: user }))
-    .catch((err) => res.status(500).send({ message: err }));
+    .catch((err) => res.status(400).send({ message: err }));
 };
 
 module.exports.getUsers = (req, res, next) => {

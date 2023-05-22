@@ -19,8 +19,8 @@ module.exports.getUsers = (req, res, next) => {
 
 module.exports.getUserById = (req, res) => {
   User.findById(req.params.userId)
-    .then((user) => res.send(user))
-    .catch((err) => res.status(500).send({ message: "Произошла ошибка" }));
+    .then((user) => user ? res.send(user) : res.send(err))
+    .catch((err) => err ? res.status(404).send(err.message) : console.log(err)); //res.status(404).send({ message: "Получен некоректный id" })
 };
 
 module.exports.updateUser = (req, res) => {

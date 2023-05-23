@@ -1,4 +1,4 @@
-const User = require("../models/user");
+const User = require('../models/user');
 
 module.exports.createUser = (req, res) => {
   const { name, about, avatar } = req.body;
@@ -24,9 +24,9 @@ module.exports.getUserById = (req, res) => {
       } else {
         res
           .status(404)
-          .send({ message: "Запрашиваемый пользователь не найден" });
+          .send({ message: 'Запрашиваемый пользователь не найден' });
       }
-    }) //res.send(user)
+    })
     .catch((err) => res.status(400).send({ message: err.message }));
 };
 
@@ -36,10 +36,11 @@ module.exports.updateUser = (req, res) => {
     // eslint-disable-next-line no-underscore-dangle
     req.user._id,
     { name, about, avatar },
-    { runValidators: true,
+    {
+      runValidators: true,
       new: true, // обработчик then получит на вход обновлённую запись
       upsert: true, // если пользователь не найден, он будет создан
-    }
+    },
   )
     .then((user) => res.send({ data: user }))
     .catch((err) => res.status(400).send({ message: err.message }));

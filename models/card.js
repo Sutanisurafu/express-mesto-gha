@@ -9,7 +9,7 @@ const cardSchema = new mongoose.Schema({
   },
   link: {
     type: String, // имя — это строка
-    required: true, // оно должно быть у каждого пользователя, так что имя — обязательное поле
+    required: true, // имя — обязательное поле
   },
   owner: {
     // eslint-disable-next-line no-undef

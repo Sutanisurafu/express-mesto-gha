@@ -1,19 +1,22 @@
 const User = require('../models/user');
+const { STATUS_CODES } = require('../constants/errors');
 
 module.exports.createUser = (req, res) => {
   const { name, about, avatar } = req.body;
 
   User.create({ name, about, avatar })
     .then((user) => res.send({ data: user }))
-    .catch((err) => {
-      res.status(400).send({ message: err.message });
+    .catch(() => {
+      res.status(STATUS_CODES.BAD_REQUEST).send({ message: 'Неверно заполнено одно из полей' });
     });
 };
 
-module.exports.getUsers = (req, res, next) => {
+module.exports.getUsers = (req, res) => {
   User.find({})
     .then((users) => res.send({ data: users }))
-    .catch(next);
+    .catch(() => res
+      .status(STATUS_CODES.INTERNATL_SERVER_ERROR)
+      .send({ message: 'Сервер не отвечает' }));
 };
 
 module.exports.getUserById = (req, res) => {
@@ -23,25 +26,37 @@ module.exports.getUserById = (req, res) => {
         res.send(user);
       } else {
         res
-          .status(404)
+          .status(STATUS_CODES.NOT_FOUND)
           .send({ message: 'Запрашиваемый пользователь не найден' });
       }
     })
-    .catch((err) => res.status(400).send({ message: err.message }));
+    .catch(() => res.status(STATUS_CODES.BAD_REQUEST).send({ message: 'Некоректный id пользователя' }));
 };
 
 module.exports.updateUser = (req, res) => {
-  const { name, about, avatar } = req.body;
+  const { name, about } = req.body;
   User.findByIdAndUpdate(
-    // eslint-disable-next-line no-underscore-dangle
     req.user._id,
-    { name, about, avatar },
+    { name, about },
     {
       runValidators: true,
       new: true, // обработчик then получит на вход обновлённую запись
-      upsert: true, // если пользователь не найден, он будет создан
     },
   )
     .then((user) => res.send({ data: user }))
-    .catch((err) => res.status(400).send({ message: err.message }));
+    .catch(() => res.status(STATUS_CODES.BAD_REQUEST).send({ message: 'Некоректные данные пользователя' }));
+};
+
+module.exports.updateAvatar = (req, res) => {
+  const { avatar } = req.body;
+  User.findByIdAndUpdate(
+    req.user._id,
+    { avatar },
+    {
+      runValidators: true,
+      new: true,
+    },
+  )
+    .then((user) => res.send({ data: user }))
+    .catch(() => res.status(STATUS_CODES.BAD_REQUEST).send({ message: 'Некоректная ссылка на аватар' }));
 };

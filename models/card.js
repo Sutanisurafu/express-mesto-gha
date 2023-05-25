@@ -12,13 +12,11 @@ const cardSchema = new mongoose.Schema({
     required: true, // имя — обязательное поле
   },
   owner: {
-    // eslint-disable-next-line no-undef
-    type: String,
+    type: mongoose.Schema.Types.ObjectId,
     required: true,
   },
   likes: {
-    // eslint-disable-next-line no-undef
-    type: Array,
+    type: mongoose.Schema.Types.ObjectId,
     default: [],
   },
   createdAt: {

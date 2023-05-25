@@ -1,35 +1,44 @@
 const Card = require('../models/card');
+const { STATUS_CODES } = require('../constants/errors');
 
 module.exports.createCard = (req, res) => {
-  // eslint-disable-next-line no-underscore-dangle
   const owner = req.user._id;
   const {
     name, link, likes, createAt,
   } = req.body;
   Card.create({
-    name, link, owner, likes, createAt,
+    name,
+    link,
+    owner,
+    likes,
+    createAt,
   })
     .then((card) => res.send({ data: card }))
-    .catch((err) => res.status(400).send({ message: err.message }));
+    .catch(() => res
+      .status(STATUS_CODES.BAD_REQUEST)
+      .send({ message: 'Неверно заполнено одно из полей' }));
 };
 
 module.exports.getCards = (req, res) => {
   Card.find({})
     .then((cards) => res.send({ data: cards }))
-    .catch((err) => res.status(500).send({ message: err }));
+    .catch(() => res
+      .status(STATUS_CODES.INTERNATL_SERVER_ERROR)
+      .send({ message: 'Сервер не отвечает' }));
 };
 
 module.exports.deleteCard = (req, res) => {
-  // eslint-disable-next-line no-underscore-dangle
   Card.findByIdAndRemove(req.params.cardId)
     .then((data) => {
       if (data) {
         res.send(data);
       } else {
-        res.status(404).send({ message: 'Карточки с таким id несуществует' });
+        res
+          .status(STATUS_CODES.BAD_REQUEST)
+          .send({ message: 'Карточки с таким id несуществует' });
       }
     })
-    .catch((err) => res.status(400).send({ message: err.message }));
+    .catch(() => res.status(STATUS_CODES.NOT_FOUND).send({ message: 'Некоректный id' }));
 };
 
 module.exports.likeCard = (req, res) => Card.findByIdAndUpdate(
@@ -41,10 +50,14 @@ module.exports.likeCard = (req, res) => Card.findByIdAndUpdate(
     if (data) {
       res.send(data);
     } else {
-      res.status(404).send({ message: 'Карточки с таким id несуществует' });
+      res
+        .status(STATUS_CODES.NOT_FOUND)
+        .send({ message: 'Карточки с таким id несуществует' });
     }
   })
-  .catch((err) => res.status(400).send({ message: err.message }));
+  .catch(() => res
+    .status(STATUS_CODES.BAD_REQUEST)
+    .send({ message: 'Некоректный id карточки' }));
 
 module.exports.dislikeCard = (req, res) => Card.findByIdAndUpdate(
   req.params.cardId,
@@ -55,8 +68,12 @@ module.exports.dislikeCard = (req, res) => Card.findByIdAndUpdate(
     if (data) {
       res.send(data);
     } else {
-      res.status(404).send({ message: 'Карточки с таким id несуществует' });
+      res
+        .status(STATUS_CODES.NOT_FOUND)
+        .send({ message: 'Карточки с таким id несуществует' });
     }
   })
   .then((data) => res.send(data))
-  .catch((err) => res.status(400).send({ message: err.message }));
+  .catch(() => res
+    .status(STATUS_CODES.BAD_REQUEST)
+    .send({ message: 'Некоректный id карточки' }));

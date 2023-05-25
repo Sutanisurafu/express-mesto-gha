@@ -1,16 +1,15 @@
-/* eslint-disable linebreak-style */
 const express = require('express');
 const mongoose = require('mongoose');
-const bodyParser = require('body-parser');
 
 const { PORT = 3000 } = process.env;
+
 const app = express();
 
 const userRouter = require('./routes/users');
 const cardRouter = require('./routes/cards');
 
-app.use(bodyParser.json());
-app.use(bodyParser.urlencoded({ extended: true }));
+app.use(express.json());
+app.use(express.urlencoded({ extended: true }));
 
 app.use((req, res, next) => {
   req.user = {
@@ -20,8 +19,8 @@ app.use((req, res, next) => {
   next();
 });
 
-app.use(userRouter);
-app.use(cardRouter);
+app.use('/users', userRouter);
+app.use('/cards', cardRouter);
 
 app.use('*', (req, res) => {
   res.status(404).send({ message: 'Запрашиваемая страница не существует' });
@@ -32,7 +31,7 @@ mongoose
     useNewUrlParser: true,
   })
   .then(() => {
-    console.log('подключились к БД');
+    console.log('Подключены к БД');
   })
   .catch((error) => {
     console.log(error);

@@ -2,14 +2,14 @@
   "name": "mesto-backend",
   "version": "1.0.0",
   "description": "",
-  "main": "index.js",
+  "main": "app.js",
   "scripts": {
     "start": "nodemon app.js",
     "dev": "nodemon app.js",
     "lint": "eslint .",
     "lint:fix": "eslint . --fix"
   },
-  "author": "",
+  "author": "Sutanisurafu",
   "license": "ISC",
   "devDependencies": {
     "eslint-config-airbnb-base": "^15.0.0",
@@ -17,7 +17,6 @@
     "nodemon": "^2.0.22"
   },
   "dependencies": {
-    "body-parser": "^1.20.2",
     "express": "^4.18.2",
     "mongoose": "^7.2.0"
   }

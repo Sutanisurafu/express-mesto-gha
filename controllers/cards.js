@@ -34,11 +34,11 @@ module.exports.deleteCard = (req, res) => {
         res.send(data);
       } else {
         res
-          .status(STATUS_CODES.BAD_REQUEST)
+          .status(STATUS_CODES.NOT_FOUND)
           .send({ message: 'Карточки с таким id несуществует' });
       }
     })
-    .catch(() => res.status(STATUS_CODES.NOT_FOUND).send({ message: 'Некоректный id' }));
+    .catch(() => res.status(STATUS_CODES.BAD_REQUEST).send({ message: 'Некоректный id' }));
 };
 
 module.exports.likeCard = (req, res) => Card.findByIdAndUpdate(

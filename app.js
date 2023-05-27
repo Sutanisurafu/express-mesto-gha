@@ -24,7 +24,7 @@ app.use('/users', userRouter);
 app.use('/cards', cardRouter);
 
 app.use('*', (req, res) => {
-  res.status(STATUS_CODES.BAD_REQUEST).send({ message: 'Запрашиваемая страница не существует' });
+  res.status(STATUS_CODES.NOT_FOUND).send({ message: 'Запрашиваемая страница не существует' });
 });
 
 mongoose

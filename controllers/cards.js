@@ -30,7 +30,7 @@ module.exports.createCard = (req, res, next) => {
       } else next(err);
     });
 };
-//??
+
 module.exports.deleteCard = (req, res, next) => {
   Card.findByIdAndRemove(req.params.cardId)
     .then((data) => {

@@ -1,5 +1,6 @@
 const express = require('express');
 const mongoose = require('mongoose');
+const { STATUS_CODES } = require('./constants/errors');
 
 const { PORT = 3000 } = process.env;
 
@@ -23,7 +24,7 @@ app.use('/users', userRouter);
 app.use('/cards', cardRouter);
 
 app.use('*', (req, res) => {
-  res.status(404).send({ message: 'Запрашиваемая страница не существует' });
+  res.status(STATUS_CODES.BAD_REQUEST).send({ message: 'Запрашиваемая страница не существует' });
 });
 
 mongoose

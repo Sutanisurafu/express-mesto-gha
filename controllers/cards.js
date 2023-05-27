@@ -1,7 +1,15 @@
 const Card = require('../models/card');
 const { STATUS_CODES } = require('../constants/errors');
 
-module.exports.createCard = (req, res) => {
+module.exports.getCards = (req, res) => {
+  Card.find({})
+    .then((cards) => res.send({ data: cards }))
+    .catch(() => res
+      .status(STATUS_CODES.INTERNATL_SERVER_ERROR)
+      .send({ message: 'Сервер не отвечает' }));
+};
+
+module.exports.createCard = (req, res, next) => {
   const owner = req.user._id;
   const {
     name, link, likes, createAt,
@@ -14,20 +22,16 @@ module.exports.createCard = (req, res) => {
     createAt,
   })
     .then((card) => res.send({ data: card }))
-    .catch(() => res
-      .status(STATUS_CODES.BAD_REQUEST)
-      .send({ message: 'Неверно заполнено одно из полей' }));
+    .catch((err) => {
+      if (err.name === 'ValidationError') {
+        res
+          .status(STATUS_CODES.BAD_REQUEST)
+          .send({ message: err.message });
+      } else next(err);
+    });
 };
 
-module.exports.getCards = (req, res) => {
-  Card.find({})
-    .then((cards) => res.send({ data: cards }))
-    .catch(() => res
-      .status(STATUS_CODES.INTERNATL_SERVER_ERROR)
-      .send({ message: 'Сервер не отвечает' }));
-};
-
-module.exports.deleteCard = (req, res) => {
+module.exports.deleteCard = (req, res, next) => {
   Card.findByIdAndRemove(req.params.cardId)
     .then((data) => {
       if (data) {
@@ -38,10 +42,16 @@ module.exports.deleteCard = (req, res) => {
           .send({ message: 'Карточки с таким id несуществует' });
       }
     })
-    .catch(() => res.status(STATUS_CODES.BAD_REQUEST).send({ message: 'Некоректный id' }));
+    .catch((err) => {
+      if (err.name === 'CastError') {
+        res
+          .status(STATUS_CODES.BAD_REQUEST)
+          .send({ message: 'Некоректный id' });
+      } else next(err);
+    });
 };
 
-module.exports.likeCard = (req, res) => Card.findByIdAndUpdate(
+module.exports.likeCard = (req, res, next) => Card.findByIdAndUpdate(
   req.params.cardId,
   { $addToSet: { likes: req.user._id } }, // добавить _id в массив, если его там нет
   { new: true },
@@ -55,11 +65,15 @@ module.exports.likeCard = (req, res) => Card.findByIdAndUpdate(
         .send({ message: 'Карточки с таким id несуществует' });
     }
   })
-  .catch(() => res
-    .status(STATUS_CODES.BAD_REQUEST)
-    .send({ message: 'Некоректный id карточки' }));
+  .catch((err) => {
+    if (err.name === 'CastError') {
+      res
+        .status(STATUS_CODES.BAD_REQUEST)
+        .send({ message: 'Некоректный id карточки' });
+    } else next(err);
+  });
 
-module.exports.dislikeCard = (req, res) => Card.findByIdAndUpdate(
+module.exports.dislikeCard = (req, res, next) => Card.findByIdAndUpdate(
   req.params.cardId,
   { $pull: { likes: req.user._id } }, // убрать _id из массива
   { new: true },
@@ -74,6 +88,10 @@ module.exports.dislikeCard = (req, res) => Card.findByIdAndUpdate(
     }
   })
   .then((data) => res.send(data))
-  .catch(() => res
-    .status(STATUS_CODES.BAD_REQUEST)
-    .send({ message: 'Некоректный id карточки' }));
+  .catch((err) => {
+    if (err.name === 'CastError') {
+      res
+        .status(STATUS_CODES.BAD_REQUEST)
+        .send({ message: 'Некоректный id карточки' });
+    } else next(err);
+  });

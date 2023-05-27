@@ -53,8 +53,8 @@ module.exports.updateUser = (req, res, next) => {
   )
     .then((user) => res.send({ data: user }))
     .catch((err) => {
-      if (err.name === 'CastError') {
-        res.status(STATUS_CODES.BAD_REQUEST).send({ message: 'Некоректный id пользователя' });
+      if (err.name === 'ValidationError') {
+        res.status(STATUS_CODES.BAD_REQUEST).send({ message: err.message });
       } else next(err);
     });
 };

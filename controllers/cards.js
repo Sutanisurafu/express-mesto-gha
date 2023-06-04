@@ -27,7 +27,7 @@ module.exports.createCard = (req, res, next) => {
         res
           .status(STATUS_CODES.BAD_REQUEST)
           .send({ message: err.message });
-      } else next(err);
+      } else next();
     });
 };
 
@@ -47,7 +47,7 @@ module.exports.deleteCard = (req, res, next) => {
         res
           .status(STATUS_CODES.BAD_REQUEST)
           .send({ message: 'Некоректный id' });
-      } else next(err);
+      } else next();
     });
 };
 
@@ -70,7 +70,7 @@ module.exports.likeCard = (req, res, next) => Card.findByIdAndUpdate(
       res
         .status(STATUS_CODES.BAD_REQUEST)
         .send({ message: 'Некоректный id карточки' });
-    } else next(err);
+    } else next();
   });
 
 module.exports.dislikeCard = (req, res, next) => Card.findByIdAndUpdate(
@@ -93,5 +93,5 @@ module.exports.dislikeCard = (req, res, next) => Card.findByIdAndUpdate(
       res
         .status(STATUS_CODES.BAD_REQUEST)
         .send({ message: 'Некоректный id карточки' });
-    } else next(err);
+    } else next();
   });

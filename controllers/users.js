@@ -10,9 +10,13 @@ module.exports.getUsers = (req, res) => {
 };
 
 module.exports.createUser = (req, res, next) => {
-  const { name, about, avatar } = req.body;
+  const {
+    name, about, avatar, email, password,
+  } = req.body;
 
-  User.create({ name, about, avatar })
+  User.create({
+    name, about, avatar, email, password,
+  })
     .then((user) => res.send({ data: user }))
     .catch((err) => {
       if (err.name === 'ValidationError') {
@@ -36,7 +40,7 @@ module.exports.getUserById = (req, res, next) => {
     })
     .catch((err) => {
       if (err.name === 'CastError') {
-        res.status(STATUS_CODES.BAD_REQUEST).send({ message: 'Некоректный id пользователя' });
+        res.status(STATUS_CODES.BAD_REQUEST).send({ message: 'Некорректный id пользователя' });
       } else next(err);
     });
 };
@@ -72,7 +76,7 @@ module.exports.updateAvatar = (req, res, next) => {
     .then((user) => res.send({ data: user }))
     .catch((err) => {
       if (err.name === 'ValidationError') {
-        res.status(STATUS_CODES.BAD_REQUEST).send({ message: 'Некоректный id пользователя' });
+        res.status(STATUS_CODES.BAD_REQUEST).send({ message: 'Некорректный id пользователя' });
       } else next(err);
     });
 };

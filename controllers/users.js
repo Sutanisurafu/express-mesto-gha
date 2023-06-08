@@ -2,8 +2,18 @@ const jwt = require('jsonwebtoken');
 const bcrypt = require('bcryptjs');
 const User = require('../models/user');
 const { STATUS_CODES } = require('../constants/errors');
+const NotFoundError = require('../errors/Not-found');
+const BadRequestError = require('../errors/Bad-request');
+const UnauthorizedError = require('../errors/Unauthorized');
+const ConflictError = require('../errors/Conflict-request');
 
-module.exports.login = (req, res) => {
+module.exports.getUsers = (req, res, next) => {
+  User.find({})
+    .then((users) => res.send({ data: users }))
+    .catch(next);
+};
+
+module.exports.login = (req, res, next) => {
   const { email, password } = req.body;
 
   return User.findUserByCredentials(email, password)
@@ -12,20 +22,10 @@ module.exports.login = (req, res) => {
         token: jwt.sign({ _id: user._id }, 'super-strong-secret', { expiresIn: '7d' }),
       });
     })
-    .catch((err) => {
-      res.status(STATUS_CODES.UNAUTHORIZED).send({ message: err.message });
-    });
+    .catch((err) => next(new UnauthorizedError(err.message)));
 };
 
-module.exports.getUsers = (req, res) => {
-  User.find({})
-    .then((users) => res.send({ data: users }))
-    .catch(() => res
-      .status(STATUS_CODES.INTERNATL_SERVER_ERROR)
-      .send({ message: 'Сервер не отвечает' }));
-};
-
-module.exports.createUser = (req, res) => {
+module.exports.createUser = (req, res, next) => {
   bcrypt.hash(req.body.password, 10)
     .then((hash) => User.create({
       email: req.body.email,
@@ -37,9 +37,7 @@ module.exports.createUser = (req, res) => {
         email: user.email,
       });
     })
-    .catch(() => {
-      res.status(STATUS_CODES.CONFLICT_REQUEST).send({ message: 'Такой имейл уже зарегистрирован' });
-    });
+    .catch(() => next(new ConflictError('Такой имейл уже зарегистрирован')));
 };
 
 module.exports.getUserById = (req, res, next) => {
@@ -47,16 +45,12 @@ module.exports.getUserById = (req, res, next) => {
     .then((user) => {
       if (user) {
         res.send(user);
-      } else {
-        res
-          .status(STATUS_CODES.NOT_FOUND)
-          .send({ message: 'Запрашиваемый пользователь не найден' });
-      }
+      } return next(new NotFoundError('Запрашиваемый пользователь не найден'));
     })
     .catch((err) => {
-      if (err.name === 'CastError') {
-        res.status(STATUS_CODES.BAD_REQUEST).send({ message: 'Некорректный id пользователя' });
-      } else next(err);
+      if (err.name !== 'CastError') {
+        next(err);
+      } return next(new BadRequestError('Некорректный id пользователя'));
     });
 };
 
@@ -72,9 +66,9 @@ module.exports.updateUser = (req, res, next) => {
   )
     .then((user) => res.send({ data: user }))
     .catch((err) => {
-      if (err.name === 'ValidationError') {
-        res.status(STATUS_CODES.BAD_REQUEST).send({ message: err.message });
-      } else next(err);
+      if (err.name !== 'ValidationError') {
+        next(err);
+      } return next(new BadRequestError(err.message));
     });
 };
 
@@ -90,15 +84,15 @@ module.exports.updateAvatar = (req, res, next) => {
   )
     .then((user) => res.send({ data: user }))
     .catch((err) => {
-      if (err.name === 'ValidationError') {
-        res.status(STATUS_CODES.BAD_REQUEST).send({ message: 'Некорректный id пользователя' });
-      } else next(err);
+      if (err.name !== 'ValidationError') {
+        next(err);
+      } return next(new BadRequestError({ message: 'некорректный id пользователя' }));
     });
 };
 
-module.exports.getEnteredUserInfo = (req, res) => {
+module.exports.getEnteredUserInfo = (req, res, next) => {
   User.findById(req.user._id)
     .orFail()
     .then((user) => res.status(STATUS_CODES.OK).send(user))
-    .catch((err) => res.status(STATUS_CODES.BAD_REQUEST).send({ message: err.message }));
+    .catch((err) => next(new BadRequestError(err.message)));
 };

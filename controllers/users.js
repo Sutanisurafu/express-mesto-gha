@@ -37,7 +37,15 @@ module.exports.createUser = (req, res, next) => {
         email: user.email,
       });
     })
-    .catch(() => next(new ConflictError('Такой имейл уже зарегистрирован')));
+    .catch((err) => {
+      if (err.code === 11000) {
+        return next(new ConflictError('Пользователь с таким email уже зарегистрирован'));
+      }
+      if (err.name === 'ValidationError') {
+        return next(new BadRequestError(err.message));
+      }
+      return next(err);
+    });
 };
 
 module.exports.getUserById = (req, res, next) => {

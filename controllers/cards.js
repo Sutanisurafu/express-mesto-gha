@@ -1,12 +1,13 @@
 const Card = require('../models/card');
 const { STATUS_CODES } = require('../constants/errors');
+const NotFoundError = require('../errors/Not-found');
+const BadRequestError = require('../errors/Bad-request');
+const ForbiddenError = require('../errors/Forbidden-request');
 
-module.exports.getCards = (req, res) => {
+module.exports.getCards = (req, res, next) => {
   Card.find({})
     .then((cards) => res.send({ data: cards }))
-    .catch(() => res
-      .status(STATUS_CODES.INTERNATL_SERVER_ERROR)
-      .send({ message: 'Сервер не отвечает' }));
+    .catch(next);
 };
 
 module.exports.createCard = (req, res, next) => {
@@ -24,36 +25,25 @@ module.exports.createCard = (req, res, next) => {
     .then((card) => res.send({ data: card }))
     .catch((err) => {
       if (err.name === 'ValidationError') {
-        res
-          .status(STATUS_CODES.BAD_REQUEST)
-          .send({ message: err.message });
-      } else next();
+        return next(new BadRequestError(err.message));
+      } return next(err);
     });
 };
 
 module.exports.deleteCard = (req, res, next) => {
   Card.findById(req.params.cardId)
-    // eslint-disable-next-line consistent-return
+    .orFail(new NotFoundError('Карточки с таким id несуществует'))
     .then((data) => {
-      if (!data) {
-        res
-          .status(STATUS_CODES.NOT_FOUND)
-          .send({ message: 'Карточки с таким id несуществует' });
-      } else if (data.owner._id !== req.user._id) {
-        res
-          .status(999)
-          .send({ message: 'это не твоё' });
-      } else {
-        return data.remove({})
-          .then((newData) => res.send({ newData }));
+      if (data.owner._id.toString() !== req.user._id) {
+        return next(new ForbiddenError('Вы не можете удалить карточку другого пользователя'));
       }
+      return Card.deleteOne(data)
+        .then(res.send('Карточка успешно удалена!'));
     })
     .catch((err) => {
       if (err.name === 'CastError') {
-        res
-          .status(STATUS_CODES.BAD_REQUEST)
-          .send({ message: 'Некоректный id' });
-      } else next();
+        return next(new BadRequestError('Некорректный id'));
+      } return next(err);
     });
 };
 
@@ -63,20 +53,14 @@ module.exports.likeCard = (req, res, next) => Card.findByIdAndUpdate(
   { new: true },
 )
   .then((data) => {
-    if (data) {
-      res.send(data);
-    } else {
-      res
-        .status(STATUS_CODES.NOT_FOUND)
-        .send({ message: 'Карточки с таким id несуществует' });
-    }
+    if (!data) {
+      throw new NotFoundError('Карточки с таким id несуществует');
+    } res.send(data);
   })
   .catch((err) => {
     if (err.name === 'CastError') {
-      res
-        .status(STATUS_CODES.BAD_REQUEST)
-        .send({ message: 'Некоректный id карточки' });
-    } else next();
+      return next(new BadRequestError('Некоректный id карточки'));
+    } return next(err);
   });
 
 module.exports.dislikeCard = (req, res, next) => Card.findByIdAndUpdate(
@@ -85,19 +69,12 @@ module.exports.dislikeCard = (req, res, next) => Card.findByIdAndUpdate(
   { new: true },
 )
   .then((data) => {
-    if (data) {
-      res.send(data);
-    } else {
-      res
-        .status(STATUS_CODES.NOT_FOUND)
-        .send({ message: 'Карточки с таким id несуществует' });
-    }
+    if (!data) {
+      throw new NotFoundError('Карточки с таким id несуществует');
+    } res.send(data);
   })
-  .then((data) => res.send(data))
   .catch((err) => {
     if (err.name === 'CastError') {
-      res
-        .status(STATUS_CODES.BAD_REQUEST)
-        .send({ message: 'Некоректный id карточки' });
-    } else next();
+      return next(new BadRequestError('Некоректный id карточки'));
+    } return next(err);
   });

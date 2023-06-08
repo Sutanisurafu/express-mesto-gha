@@ -13,7 +13,7 @@ module.exports.login = (req, res) => {
       });
     })
     .catch((err) => {
-      res.status(401).send({ message: err.message });
+      res.status(STATUS_CODES.UNAUTHORIZED).send({ message: err.message });
     });
 };
 
@@ -32,13 +32,13 @@ module.exports.createUser = (req, res) => {
       password: hash,
     }))
     .then((user) => {
-      res.status(201).send({
+      res.status(STATUS_CODES.CREATED).send({
         _id: user._id,
         email: user.email,
       });
     })
-    .catch((err) => {
-      res.status(400).send({ message: err.message });
+    .catch(() => {
+      res.status(STATUS_CODES.CONFLICT_REQUEST).send({ message: 'Такой имейл уже зарегистрирован' });
     });
 };
 

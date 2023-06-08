@@ -9,6 +9,7 @@ const auth = require('./middlewares/auth');
 const { createUser, login } = require('./controllers/users');
 const userRouter = require('./routes/users');
 const cardRouter = require('./routes/cards');
+const handleErrors = require('./middlewares/errors');
 
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
@@ -34,6 +35,8 @@ mongoose
   .catch((error) => {
     console.log(error);
   });
+
+app.use(handleErrors);
 
 app.listen(PORT, () => {
   console.log('Server is running on 3000 PORT');

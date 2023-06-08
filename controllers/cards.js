@@ -32,14 +32,20 @@ module.exports.createCard = (req, res, next) => {
 };
 
 module.exports.deleteCard = (req, res, next) => {
-  Card.findByIdAndRemove(req.params.cardId)
+  Card.findById(req.params.cardId)
+    // eslint-disable-next-line consistent-return
     .then((data) => {
-      if (data) {
-        res.send(data);
-      } else {
+      if (!data) {
         res
           .status(STATUS_CODES.NOT_FOUND)
           .send({ message: 'Карточки с таким id несуществует' });
+      } else if (data.owner._id !== req.user._id) {
+        res
+          .status(999)
+          .send({ message: 'это не твоё' });
+      } else {
+        return data.remove({})
+          .then((newData) => res.send({ newData }));
       }
     })
     .catch((err) => {

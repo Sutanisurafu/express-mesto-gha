@@ -5,26 +5,23 @@ const { STATUS_CODES } = require('./constants/errors');
 const { PORT = 3000 } = process.env;
 
 const app = express();
-
+const auth = require('./middlewares/auth');
+const { createUser, login } = require('./controllers/users');
 const userRouter = require('./routes/users');
 const cardRouter = require('./routes/cards');
 
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
-app.use((req, res, next) => {
-  req.user = {
-    _id: '646a15689f6c97feb47de31e',
-  };
-
-  next();
-});
-
-app.use('/users', userRouter);
-app.use('/cards', cardRouter);
+app.use('/users', auth, userRouter);
+app.use('/cards', auth, cardRouter);
+app.post('/signin', login);
+app.post('/signup', createUser);
 
 app.use('*', (req, res) => {
-  res.status(STATUS_CODES.NOT_FOUND).send({ message: 'Запрашиваемая страница не существует' });
+  res
+    .status(STATUS_CODES.NOT_FOUND)
+    .send({ message: 'Запрашиваемая страница не существует' });
 });
 
 mongoose

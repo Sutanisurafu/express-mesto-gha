@@ -1,4 +1,5 @@
 const jwt = require('jsonwebtoken');
+const bcrypt = require('bcryptjs');
 const User = require('../models/user');
 const { STATUS_CODES } = require('../constants/errors');
 
@@ -7,17 +8,12 @@ module.exports.login = (req, res) => {
 
   return User.findUserByCredentials(email, password)
     .then((user) => {
-      const token = jwt.sign(
-        { _id: user._id },
-        'some-secret-key',
-        { expiresIn: '7d' }, // токен будет просрочен через час после создания
-      );
-      res.send({ token });
+      res.send({
+        token: jwt.sign({ _id: user._id }, 'super-strong-secret', { expiresIn: '7d' }),
+      });
     })
     .catch((err) => {
-      res
-        .status(401)
-        .send({ message: err.message });
+      res.status(401).send({ message: err.message });
     });
 };
 
@@ -29,21 +25,20 @@ module.exports.getUsers = (req, res) => {
       .send({ message: 'Сервер не отвечает' }));
 };
 
-module.exports.createUser = (req, res, next) => {
-  const {
-    name, about, avatar, email, password,
-  } = req.body;
-
-  User.create({
-    name, about, avatar, email, password,
-  })
-    .then((user) => res.send({ data: user }))
+module.exports.createUser = (req, res) => {
+  bcrypt.hash(req.body.password, 10)
+    .then((hash) => User.create({
+      email: req.body.email,
+      password: hash,
+    }))
+    .then((user) => {
+      res.status(201).send({
+        _id: user._id,
+        email: user.email,
+      });
+    })
     .catch((err) => {
-      if (err.name === 'ValidationError') {
-        res
-          .status(STATUS_CODES.BAD_REQUEST)
-          .send({ message: err.message });
-      } else next(err);
+      res.status(400).send({ message: err.message });
     });
 };
 
@@ -99,4 +94,11 @@ module.exports.updateAvatar = (req, res, next) => {
         res.status(STATUS_CODES.BAD_REQUEST).send({ message: 'Некорректный id пользователя' });
       } else next(err);
     });
+};
+
+module.exports.getEnteredUserInfo = (req, res) => {
+  User.findById(req.user._id)
+    .orFail()
+    .then((user) => res.status(STATUS_CODES.OK).send(user))
+    .catch((err) => res.status(STATUS_CODES.BAD_REQUEST).send({ message: err.message }));
 };

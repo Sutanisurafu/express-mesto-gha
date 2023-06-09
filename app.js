@@ -21,7 +21,9 @@ app.use('/cards', auth, cardRouter);
 app.post('/signin', signInValidation, login);
 app.post('/signup', signUpValidation, createUser);
 
-app.use('*', auth, () => new NotFoundError('Запрашиваемая страница не существует'));
+app.use('*', auth, (res, req, next) => {
+  next(new NotFoundError('Запрашиваемая страница не существует'));
+});
 
 mongoose
   .connect('mongodb://0.0.0.0:27017/mestodb', {

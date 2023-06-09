@@ -1,7 +1,7 @@
 /* eslint-disable no-useless-escape */
 const express = require('express');
 const mongoose = require('mongoose');
-const { celebrate, Joi, errors } = require('celebrate');
+const { errors } = require('celebrate');
 const { STATUS_CODES } = require('./constants/errors');
 const { signUpValidation, signInValidation } = require('./middlewares/validators');
 
@@ -38,7 +38,7 @@ mongoose
     console.log(error);
   });
 
-  app.use(errors());
+app.use(errors());
 
 app.use((err, req, res, next) => {
   // если у ошибки нет статуса, выставляем 500

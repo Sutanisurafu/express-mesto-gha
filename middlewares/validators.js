@@ -39,3 +39,9 @@ exports.signInValidation = celebrate({
     password: Joi.string().required(),
   }),
 });
+
+exports.userIdValidate = celebrate({
+  params: Joi.object().keys({
+    userId: Joi.string().hex().length(24),
+  }),
+});

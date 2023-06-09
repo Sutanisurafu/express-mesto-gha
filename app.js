@@ -1,8 +1,9 @@
 /* eslint-disable no-useless-escape */
 const express = require('express');
 const mongoose = require('mongoose');
-const { celebrate, Joi } = require('celebrate');
+const { celebrate, Joi, errors } = require('celebrate');
 const { STATUS_CODES } = require('./constants/errors');
+const { signUpValidation, signInValidation } = require('./middlewares/validators');
 
 const { PORT = 3000 } = process.env;
 
@@ -11,28 +12,14 @@ const auth = require('./middlewares/auth');
 const { createUser, login } = require('./controllers/users');
 const userRouter = require('./routes/users');
 const cardRouter = require('./routes/cards');
-const handleErrors = require('./middlewares/errors');
 
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
 app.use('/users', auth, userRouter);
 app.use('/cards', auth, cardRouter);
-app.post('/signin', celebrate({
-  body: Joi.object().keys({
-    email: Joi.string().required().email(),
-    password: Joi.string().required().min(8),
-  }),
-}), login);
-app.post('/signup', celebrate({
-  body: Joi.object().keys({
-    email: Joi.string().required().email(),
-    password: Joi.string().required().min(8),
-    name: Joi.string().min(2).max(30),
-    about: Joi.string().min(2).max(30),
-    avatar: Joi.string().regex(/^https?:\/\/(www\.)?[\w\-\.\_\~\:\/\?\#\[\]\@\!\$\&\'\(\)\*\+\,\;\=]*#?$/),
-  }),
-}), createUser);
+app.post('/signin', signInValidation, login);
+app.post('/signup', signUpValidation, createUser);
 
 app.use('*', (req, res) => {
   res
@@ -51,7 +38,21 @@ mongoose
     console.log(error);
   });
 
-app.use(handleErrors);
+  app.use(errors());
+
+app.use((err, req, res, next) => {
+  // если у ошибки нет статуса, выставляем 500
+  const { statusCode = 500, message } = err;
+  res
+    .status(statusCode)
+    .send({
+      // проверяем статус и выставляем сообщение в зависимости от него
+      message: statusCode === 500
+        ? 'На сервере произошла ошибка'
+        : message,
+    });
+  next();
+});
 
 app.listen(PORT, () => {
   console.log('Server is running on 3000 PORT');

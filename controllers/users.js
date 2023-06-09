@@ -26,15 +26,23 @@ module.exports.login = (req, res, next) => {
 };
 
 module.exports.createUser = (req, res, next) => {
+  const {
+    name, about, avatar, email,
+  } = req.body;
   bcrypt.hash(req.body.password, 10)
     .then((hash) => User.create({
-      email: req.body.email,
+      name,
+      about,
+      avatar,
+      email,
       password: hash,
     }))
     .then((user) => {
       res.status(STATUS_CODES.CREATED).send({
-        _id: user._id,
         email: user.email,
+        name: user.name,
+        about: user.about,
+        avatar: user.avatar,
       });
     })
     .catch((err) => {

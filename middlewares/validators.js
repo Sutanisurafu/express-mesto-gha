@@ -44,3 +44,9 @@ exports.cardValidate = celebrate({
     link: Joi.string().required().pattern(urlCheck),
   }),
 });
+
+exports.cardIdValidate = celebrate({
+  params: Joi.object().keys({
+    cardId: Joi.string().hex().length(24),
+  }),
+});

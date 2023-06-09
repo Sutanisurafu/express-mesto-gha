@@ -50,7 +50,7 @@ module.exports.createUser = (req, res, next) => {
         return next(new ConflictError('Пользователь с таким email уже зарегистрирован'));
       }
       if (err.name === 'ValidationError') {
-        return next(new BadRequestError(err.message));
+        return next(new BadRequestError('Некорректные данные при создании пользователя'));
       }
       return next(err);
     });
@@ -84,7 +84,7 @@ module.exports.updateUser = (req, res, next) => {
     .catch((err) => {
       if (err.name !== 'ValidationError') {
         next(err);
-      } return next(new BadRequestError(err.message));
+      } return next(new BadRequestError('Некорректные данные'));
     });
 };
 
@@ -102,7 +102,7 @@ module.exports.updateAvatar = (req, res, next) => {
     .catch((err) => {
       if (err.name !== 'ValidationError') {
         next(err);
-      } return next(new BadRequestError({ message: 'некорректный id пользователя' }));
+      } return next(new BadRequestError('Некорректные данные'));
     });
 };
 

@@ -2,7 +2,7 @@
 const express = require('express');
 const mongoose = require('mongoose');
 const { errors } = require('celebrate');
-const { STATUS_CODES } = require('./constants/errors');
+const NotFoundError = require('./errors/Not-found');
 const { signUpValidation, signInValidation } = require('./middlewares/validators');
 
 const { PORT = 3000 } = process.env;
@@ -21,11 +21,7 @@ app.use('/cards', auth, cardRouter);
 app.post('/signin', signInValidation, login);
 app.post('/signup', signUpValidation, createUser);
 
-app.use('*', (req, res) => {
-  res
-    .status(STATUS_CODES.NOT_FOUND)
-    .send({ message: 'Запрашиваемая страница не существует' });
-});
+app.use('*', auth, () => new NotFoundError('Запрашиваемая страница не существует'));
 
 mongoose
   .connect('mongodb://0.0.0.0:27017/mestodb', {

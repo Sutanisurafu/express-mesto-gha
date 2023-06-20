@@ -5,7 +5,7 @@ const ForbiddenError = require('../errors/Forbidden-request');
 
 module.exports.getCards = (req, res, next) => {
   Card.find({})
-    .then((cards) => res.send({ data: cards }))
+    .then((cards) => res.send(cards))
     .catch(next);
 };
 
@@ -15,13 +15,13 @@ module.exports.createCard = (req, res, next) => {
     name, link, likes, createAt,
   } = req.body;
   Card.create({
+    likes,
     name,
     link,
     owner,
-    likes,
     createAt,
   })
-    .then((card) => res.send({ data: card }))
+    .then((card) => res.send(card))
     .catch((err) => {
       if (err.name === 'ValidationError') {
         return next(new BadRequestError('Некорректные данные карточки'));

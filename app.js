@@ -1,5 +1,6 @@
 /* eslint-disable no-useless-escape */
 const express = require('express');
+const cors = require('cors');
 const mongoose = require('mongoose');
 const { errors } = require('celebrate');
 const NotFoundError = require('./errors/Not-found');
@@ -13,6 +14,7 @@ const { createUser, login } = require('./controllers/users');
 const userRouter = require('./routes/users');
 const cardRouter = require('./routes/cards');
 
+app.use('*', cors());
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 

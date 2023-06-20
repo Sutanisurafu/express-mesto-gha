@@ -80,7 +80,7 @@ module.exports.updateUser = (req, res, next) => {
       new: true, // обработчик then получит на вход обновлённую запись
     },
   )
-    .then((user) => res.send({ data: user }))
+    .then((user) => res.send(user))
     .catch((err) => {
       if (err.name !== 'ValidationError') {
         next(err);
@@ -98,7 +98,7 @@ module.exports.updateAvatar = (req, res, next) => {
       new: true,
     },
   )
-    .then((user) => res.send({ data: user }))
+    .then((user) => res.send(user))
     .catch((err) => {
       if (err.name !== 'ValidationError') {
         next(err);
